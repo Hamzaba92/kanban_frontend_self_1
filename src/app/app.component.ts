@@ -2,11 +2,12 @@ import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { LoginComponent } from './login/login.component';
 import { LandingpageComponent } from './kanban/landingpage/landingpage.component';
+import { RegisterComponent } from './register/register.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, LoginComponent, LandingpageComponent],
+  imports: [RouterOutlet, LoginComponent, LandingpageComponent, RegisterComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })

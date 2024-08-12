@@ -1,1 +1,57 @@
-<p>register works!</p>
+<div class="register-container">
+
+    <div class="header">
+        <h1>Register User</h1>
+        <button mat-flat-button (click)="backToLogin()">
+            <span class="material-symbols-outlined">
+                reply
+            </span>
+        </button>
+    </div>
+
+    <form (ngSubmit)="registerUser()">
+        
+        <div class="coloum-field">
+            <mat-progress-bar style="margin-bottom: 16px;" mode="indeterminate" *ngIf="progressbar"></mat-progress-bar>
+
+            <mat-form-field class="example-full-width">
+                <mat-label>Firstname</mat-label>
+                <input matInput placeholder="" required [(ngModel)]="firstname" name="firstname" type="text">
+            </mat-form-field>
+
+            <mat-form-field class="example-full-width">
+                <mat-label>Lastname</mat-label>
+                <input matInput placeholder="" required [(ngModel)]="lastname" name="lastname" type="text">
+            </mat-form-field>
+
+            <mat-form-field class="example-full-width">
+                <mat-label>E-Mail</mat-label>
+                <input matInput placeholder="" required [(ngModel)]="eMail" name="eMail" email #emailInput="ngModel">
+                <mat-error *ngIf="emailInput.invalid">{{ getErrorMessage(emailInput) }}</mat-error>
+            </mat-form-field>
+
+            <mat-form-field class="example-full-width">
+                <mat-label>Username</mat-label>
+                <input matInput placeholder="" required [(ngModel)]="username" name="username" type="text">
+            </mat-form-field>
+
+            <mat-form-field class="example-full-width">
+                <mat-label>Password</mat-label>
+                <input matInput placeholder="" required [(ngModel)]="password" name="password" type="password">
+            </mat-form-field>
+
+            <mat-form-field class="example-full-width">
+                <mat-label>Confirm Password</mat-label>
+                <input matInput placeholder="" required [(ngModel)]="confirm_password" name="confirm_password"
+                    type="password">
+                <mat-hint *ngIf="password && confirm_password && password !== confirm_password"
+                    style="color:red">Passwords do not match</mat-hint>
+                <mat-hint *ngIf="doPasswordsMatch()" style="color: rgb(33, 114, 189);">Passwords match!</mat-hint>
+            </mat-form-field>
+
+            <button mat-flat-button [disabled]="!isFormValid()">Register</button>
+        </div>
+    </form>
+
+    
+</div>

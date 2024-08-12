@@ -1,0 +1,55 @@
+.register-container {
+    background: linear-gradient(-45deg, #ee7752, #6ddb72, #23a6d5, #23d5ab);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+}
+
+@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+.header {
+    display: flex;
+    flex-direction: row;
+
+    button {
+        margin-left: 38px;
+    }
+}
+
+h1 {
+    padding-left: 42px;
+}
+
+.register-container {
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+    flex-direction: column;
+    width: 100vw;
+
+}
+
+.coloum-field {
+    display: flex;
+    flex-direction: column;
+    padding-left: 62px;
+    padding-right: 62px;
+}
+
+
+button {
+    height: 58px;
+    font-size: 25px;
+    letter-spacing: 2px;
+}

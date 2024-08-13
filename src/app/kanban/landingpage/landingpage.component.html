@@ -9,7 +9,7 @@
     </div>
   </header>
   <div class="mdl-layout__drawer">
-    
+
     <nav class="mdl-navigation">
       <a class="mdl-navigation__link" href="">Logout<span class="material-symbols-outlined">logout</span></a>
     </nav>
@@ -17,10 +17,42 @@
   <main class="mdl-layout__content">
     <div class="page-content">
 
+      
+
+      <div>
+        <div class="example-container">
+          <h2>To do</h2>
+          <div cdkDropList #todolist="cdkDropList" [cdkDropListConnectedTo]="[donelist, progresslist]" [cdkDropListData]="todo" class="example-list" (cdkDropListDropped)="drop($event)">
+            @for (item of todo; track item) {
+            <div class="example-box" cdkDrag>{{item}}</div>
+            }
+          </div>
+        </div>
+
+
+        <div class="example-container">
+          <h2>Progress</h2>
+          <div cdkDropList #progresslist="cdkDropList" [cdkDropListConnectedTo]="[todolist, donelist]" [cdkDropListData]="progress" class="example-list" (cdkDropListDropped)="drop($event)">
+            @for (item of progress; track item) {
+            <div class="example-box" cdkDrag>{{item}}</div>
+            }
+          </div>
+        </div>
+
+
+        <div class="example-container">
+          <h2>Done</h2>
+          <div cdkDropList #donelist="cdkDropList" [cdkDropListConnectedTo]="[todolist, progresslist]" [cdkDropListData]="done" class="example-list" (cdkDropListDropped)="drop($event)">
+            @for (item of done; track item) {
+            <div class="example-box" cdkDrag>{{item}}</div>
+            }
+          </div>
+        </div>
 
 
 
-      <!-- Your content goes here -->
+      </div>
+
 
 
 

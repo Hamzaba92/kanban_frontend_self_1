@@ -1,4 +1,6 @@
 <div class="login-container">
+
+    <h1>Login Kanban-Board</h1>
     <form class="flx-column" (ngSubmit)="login()">
 
         <mat-form-field class="example-full-width">
@@ -8,7 +10,7 @@
 
         <mat-form-field class="example-full-width">
             <mat-label>Password</mat-label>
-            <input matInput placeholder="" required type="password" name="password" type="password">
+            <input matInput placeholder="" required [(ngModel)]="password" name="password" type="password">
         </mat-form-field>
 
         <div class="space-btwn">
@@ -16,5 +18,12 @@
             <button mat-flat-button (click)="openRegisterForms()">Register</button>
         </div>
 
+        <strong *ngIf="errorMessage" class="error-message">
+            {{ errorMessage }}
+        </strong>
+
     </form>
+
+
+
 </div>

@@ -15,6 +15,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { Router } from '@angular/router';
+import { inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { response } from 'express';
 
 @Component({
   selector: 'app-landingpage',
@@ -26,11 +30,19 @@ import { MatIconModule } from '@angular/material/icon';
 })
 export class LandingpageComponent {
 
+  constructor(private http: HttpClient){}
+
+  router = inject(Router);
+
   todo: string[] = ['Get to work', 'Pick up groceries', 'Go home', 'Fall asleep'];
 
   done: string[] = ['Get up', 'Brush teeth', 'Take a shower', 'Check e-mail', 'Walk dog'];
 
   progress: string[] = ['Learning', 'Walking'];
+
+  logout(){
+    this.router.navigateByUrl('login')
+  }
 
   addTask(taskInput: HTMLInputElement): void {
     const task = taskInput.value;

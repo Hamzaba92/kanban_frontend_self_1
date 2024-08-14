@@ -9,6 +9,10 @@
         </button>
     </div>
 
+    <div *ngIf="successMessage" class="success-banner">
+        {{ successMessage }}
+      </div>
+
     <form (ngSubmit)="registerUser()" #registerForm="ngForm">
         
         <div class="coloum-field">
@@ -48,6 +52,15 @@
                     style="color:red">Passwords do not match</mat-hint>
                 <mat-hint *ngIf="doPasswordsMatch()" style="color: rgb(33, 114, 189);">Passwords match!</mat-hint>
             </mat-form-field>
+
+            <div *ngIf="formErrors.length > 0">
+                <div *ngFor="let error of formErrors">
+                  <div class="error-message" style="color: red;">
+                    <strong>{{ error.field }}:</strong> {{ error.message }}
+                  </div>
+                </div>
+              </div>
+              
 
             <button mat-flat-button type="submit" [disabled]="!isFormValid()">Register</button>
         </div>

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit  } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule, NgModel } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -16,7 +16,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss'
 })
-export class RegisterComponent implements OnInit{
+export class RegisterComponent implements OnInit {
   firstname: string = '';
   lastname: string = '';
   eMail: string = '';
@@ -26,12 +26,14 @@ export class RegisterComponent implements OnInit{
   csrfToken: string = '';
 
   progressbar: boolean = false;
+  formErrors: { field: string, message: string }[] = [];
+  successMessage: string = '';
 
   constructor(private http: HttpClient, public rout: Router) {
 
   }
 
-  ngOnInit(){
+  ngOnInit() {
     this.getCsrfToken();
   }
 
@@ -81,14 +83,14 @@ export class RegisterComponent implements OnInit{
     const csrfToken = localStorage.getItem('csrftoken');
     const headers = new HttpHeaders({
       'X-CSRFToken': csrfToken ?? '',
-       'Content-Type': 'application/json'
+      'Content-Type': 'application/json'
     });
 
     this.http.post('http://localhost:8000/api/register/', formData, { headers }).subscribe({
       next: (response) => {
         console.log('User registered successfully', response);
         this.progressbar = false;
-        this.rout.navigateByUrl('login');
+        this.showSuccessBanner();
       },
       error: (error) => {
         console.error('Registration failed', error);
@@ -97,11 +99,25 @@ export class RegisterComponent implements OnInit{
           console.error('Client-side error:', error.error.message);
         } else {
           console.error('Server-side error:', error);
-          console.error('Status Code:', error.status);
-          console.error('Response Body:', error.error);
+          this.displayErrors(error.error.errors);
         }
       },
     });
+  }
+
+  showSuccessBanner() {
+    this.successMessage = 'Successfully Registered';
+    setTimeout(() => {
+      this.successMessage = '';
+      this.rout.navigateByUrl('login');
+    }, 3000);
+  }
+
+  displayErrors(errors: any) {
+    this.formErrors = [];
+    for (const [key, value] of Object.entries(errors)) {
+      this.formErrors.push({ field: key, message: value as string });
+    }
   }
 
   backToLogin() {

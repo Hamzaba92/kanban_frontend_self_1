@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
+import { CommonModule } from '@angular/common';
 import {
   CdkDragDrop,
   CdkDrag,
@@ -13,13 +14,13 @@ import {MatInputModule} from '@angular/material/input';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {FormsModule} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
-
+import {MatIconModule} from '@angular/material/icon';
 
 @Component({
   selector: 'app-landingpage',
   standalone: true,
   imports: [MatCardModule, CdkDropListGroup, CdkDropList, CdkDrag, MatInputModule,
-     MatFormFieldModule, FormsModule, MatButtonModule],
+     MatFormFieldModule, FormsModule, MatButtonModule, MatIconModule, CommonModule],
   templateUrl: './landingpage.component.html',
   styleUrl: './landingpage.component.scss'
 })
@@ -52,4 +53,19 @@ export class LandingpageComponent {
     }
   }
 
-}
+  deleteTask(index:number, list:string){
+    if (list === 'todo'){
+      this.todo.splice(index, 1);
+    } else if (list === 'progress'){
+      this.todo.splice(index, 1);
+    } else if(list === 'done'){
+      this.done.splice(index, 1);
+    }
+
+    }
+
+
+
+  }
+
+

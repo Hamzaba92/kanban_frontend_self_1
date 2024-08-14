@@ -28,35 +28,44 @@
 
 
       <div class="drag-and-drop-content">
+
+        
         <div class="example-container">
           <h2>To do</h2>
           <div cdkDropList #todolist="cdkDropList" [cdkDropListConnectedTo]="[donelist, progresslist]" [cdkDropListData]="todo" class="example-list" (cdkDropListDropped)="drop($event)">
-            @for (item of todo; track item) {
-            <div class="example-box" cdkDrag>{{item}}</div>
-            }
+            <div class="example-box" *ngFor="let item of todo; let i = index" cdkDrag>
+              {{item}}
+              <button mat-icon-button color="warn" (click)="deleteTask(i, 'todo')">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
           </div>
         </div>
-
-
+        
         <div class="example-container">
           <h2>Progress</h2>
           <div cdkDropList #progresslist="cdkDropList" [cdkDropListConnectedTo]="[todolist, donelist]" [cdkDropListData]="progress" class="example-list" (cdkDropListDropped)="drop($event)">
-            @for (item of progress; track item) {
-            <div class="example-box" cdkDrag>{{item}}</div>
-            }
+            <div class="example-box" *ngFor="let item of progress; let i = index" cdkDrag>
+              {{item}}
+              <button mat-icon-button color="warn" (click)="deleteTask(i, 'progress')">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
           </div>
         </div>
-
-
+        
         <div class="example-container">
           <h2>Done</h2>
           <div cdkDropList #donelist="cdkDropList" [cdkDropListConnectedTo]="[todolist, progresslist]" [cdkDropListData]="done" class="example-list" (cdkDropListDropped)="drop($event)">
-            @for (item of done; track item) {
-            <div class="example-box" cdkDrag>{{item}}</div>
-            }
+            <div class="example-box" *ngFor="let item of done; let i = index" cdkDrag>
+              {{item}}
+              <button mat-icon-button color="warn" (click)="deleteTask(i, 'done')">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
           </div>
         </div>
-
+        
 
 
       </div>

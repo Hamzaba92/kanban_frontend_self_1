@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { CommonModule } from '@angular/common';
 import {
@@ -17,8 +17,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { response } from 'express';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { authGuard } from '../../auth.guard';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-landingpage',
@@ -28,53 +29,146 @@ import { response } from 'express';
   templateUrl: './landingpage.component.html',
   styleUrl: './landingpage.component.scss'
 })
-export class LandingpageComponent {
 
-  constructor(private http: HttpClient){}
+export class LandingpageComponent implements OnInit {
+
+  constructor(private http: HttpClient) { }
 
   router = inject(Router);
 
-  todo: string[] = ['Get to work', 'Pick up groceries', 'Go home', 'Fall asleep'];
 
-  done: string[] = ['Get up', 'Brush teeth', 'Take a shower', 'Check e-mail', 'Walk dog'];
+  todo = [
+    { id: 1, title: 'Get to work' },
+    { id: 2, title: 'Pick up groceries' },
+  ];
 
-  progress: string[] = ['Learning', 'Walking'];
+  done = [
+    { id: 3, title: 'Brush teeth' },
+    { id: 4, title: 'Take a shower' },
+    { id: 5, title: 'Check e-mail' },
+  ];
 
-  logout(){
+  progress = [
+    { id: 6, title: 'read a book' },
+    { id: 7, title: 'Walking' }
+  ];
+
+  ngOnInit(): void {
+    //this.loadTasks();
+  }
+
+  async loadTasks() {
+    let token = localStorage.getItem('csrftoken');
+    let headers = new HttpHeaders();
+    if (token) {
+      headers = headers.set('X-CSRFToken', token);
+    }
+
+    try {
+      const response = await this.http.get('http://localhost:8000/loadTasks/', { headers }).toPromise();
+      console.log('Tasks loaded successfully', response);
+    } catch (error) {
+      console.error('Error loading tasks', error);
+    }
+  }
+
+
+  
+  logout() {
     this.router.navigateByUrl('login')
   }
 
   addTask(taskInput: HTMLInputElement): void {
-    const task = taskInput.value;
-    if (task) {
-      this.todo.push(task);
+    const taskTitle = taskInput.value;
+    const token = localStorage.getItem('csrftoken');
+    if (taskTitle && token) {
+      this.http.post('http://localhost:8000/tasks/', 
+        { title: taskTitle, status: 'todo' },
+        {
+          headers: { 'X-CSRFToken': token }  
+        }
+      )
+      .subscribe(
+        (response: any) => {
+          const newTask = { id: response.id, title: taskTitle };
+          this.todo.push(newTask);
+          console.log('Task created successfully', response);
+        },
+        error => {
+          console.error('Error:', error.status, error.message, error.error);
+        }
+      );
+  
       taskInput.value = '';
     }
   }
+  
 
-  drop(event: CdkDragDrop<string[]>) {
+  drop(event: CdkDragDrop<any[]>) {
     if (event.previousContainer === event.container) {
+
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
     } else {
+
       transferArrayItem(
         event.previousContainer.data,
         event.container.data,
         event.previousIndex,
         event.currentIndex,
       );
+
+      const newStatus = this.getStatus(event.container.element.nativeElement.id);
+
+
+      const task = event.item.data;
+
+      if (!task || !task.id) {
+        console.error('Task oder Task-ID nicht definiert:', task);
+        return;
+      }
+
+      this.http.put(`http://localhost:8000/tasks/${task.id}/`, { status: newStatus })
+        .subscribe(
+          response => console.log('Task updated successfully', response),
+          error => console.error('Error updating task', error)
+        );
+    }
+  }
+
+  getStatus(containerId: string): string {
+    switch (containerId) {
+      case 'todolist':
+        return 'todo';
+      case 'progresslist':
+        return 'progress';
+      case 'donelist':
+        return 'done';
+      default:
+        console.error('Unrecognized container ID:', containerId);
+        return '';
     }
   }
 
   deleteTask(index: number, list: string) {
+    let task;
     if (list === 'todo') {
-      this.todo.splice(index, 1);
+      task = this.todo.splice(index, 1)[0];
     } else if (list === 'progress') {
-      this.todo.splice(index, 1);
+      task = this.progress.splice(index, 1)[0];
     } else if (list === 'done') {
-      this.done.splice(index, 1);
+      task = this.done.splice(index, 1)[0];
     }
 
+    if (task && task.id) {
+      this.http.delete(`http://localhost:8000/tasks/${task.id}/delete/`)
+        .subscribe(
+          response => console.log('Task deleted successfully', response),
+          error => console.error('Error deleting task', error)
+        );
+    }
   }
+
+
 
 
 

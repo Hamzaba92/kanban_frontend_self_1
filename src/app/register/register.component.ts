@@ -41,13 +41,22 @@ export class RegisterComponent implements OnInit {
     this.http.get('http://localhost:8000/api/csrf-token/').subscribe({
       next: (response: any) => {
         this.csrfToken = response.csrfToken;
-        localStorage.setItem('csrftoken', this.csrfToken);
         document.cookie = `csrftoken=${this.csrfToken}; path=/`;
       },
       error: (error) => {
         console.error('Error fetching CSRF token:', error);
       }
     });
+  }
+
+  getCookieValue(name: string): string | null {
+    const nameEQ = name + "=";
+    const ca = document.cookie.split(';');
+    for (let i = 0; i < ca.length; i++) {
+      let c = ca[i].trim();
+      if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+    }
+    return null;
   }
 
   isFormValid() {
@@ -80,7 +89,7 @@ export class RegisterComponent implements OnInit {
       password2: this.confirm_password,
     };
 
-    const csrfToken = localStorage.getItem('csrftoken');
+    const csrfToken = this.getCookieValue('csrftoken');
     const headers = new HttpHeaders({
       'X-CSRFToken': csrfToken ?? '',
       'Content-Type': 'application/json'

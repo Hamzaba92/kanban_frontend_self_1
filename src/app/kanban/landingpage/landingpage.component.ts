@@ -18,8 +18,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { authGuard } from '../../auth.guard';
-import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-landingpage',
@@ -38,42 +36,55 @@ export class LandingpageComponent implements OnInit {
 
 
   todo = [
-    { id: 1, title: 'Get to work' },
-    { id: 2, title: 'Pick up groceries' },
+    { id: null, title: 'Get to work' },
+    { id: null, title: 'Pick up groceries' },
   ];
 
   done = [
-    { id: 3, title: 'Brush teeth' },
-    { id: 4, title: 'Take a shower' },
-    { id: 5, title: 'Check e-mail' },
+    { id: null, title: 'Brush teeth' },
+    { id: null, title: 'Take a shower' },
+    { id: null, title: 'Check e-mail' },
   ];
 
   progress = [
-    { id: 6, title: 'read a book' },
-    { id: 7, title: 'Walking' }
+    { id: null, title: 'read a book' },
+    { id: null, title: 'Walking' }
   ];
 
-  ngOnInit(): void {
+  ngOnInit() {
     //this.loadTasks();
   }
 
   async loadTasks() {
-    let token = localStorage.getItem('csrftoken');
-    let headers = new HttpHeaders();
-    if (token) {
-      headers = headers.set('X-CSRFToken', token);
-    }
 
-    try {
-      const response = await this.http.get('http://localhost:8000/loadTasks/', { headers }).toPromise();
-      console.log('Tasks loaded successfully', response);
-    } catch (error) {
-      console.error('Error loading tasks', error);
+    interface Task {
+      id: number | null;
+      title: string;
+      status: string;
+    }
+  
+
+    const token = localStorage.getItem('csrftoken');
+    if (token) {
+      this.http.get<Task[]>('http://localhost:8000/loadTasks/', {
+        headers: { 'X-CSRFToken': token }
+      })
+      .subscribe(
+        (response: any) => {
+          console.log('Response:', response);
+          this.todo = response.filter((task: Task) => task.status === 'todo');
+          this.done = response.filter((task: Task) => task.status === 'done');
+          this.progress = response.filter((task: Task) => task.status === 'progress');
+        },
+        error => {
+          console.error('Error:', error.status, error.message, error.error);
+        }
+      );
     }
   }
-
-
   
+
+
   logout() {
     this.router.navigateByUrl('login')
   }
@@ -82,27 +93,27 @@ export class LandingpageComponent implements OnInit {
     const taskTitle = taskInput.value;
     const token = localStorage.getItem('csrftoken');
     if (taskTitle && token) {
-      this.http.post('http://localhost:8000/tasks/', 
+      this.http.post('http://localhost:8000/tasks/',
         { title: taskTitle, status: 'todo' },
         {
-          headers: { 'X-CSRFToken': token }  
+          headers: { 'X-CSRFToken': token }
         }
       )
-      .subscribe(
-        (response: any) => {
-          const newTask = { id: response.id, title: taskTitle };
-          this.todo.push(newTask);
-          console.log('Task created successfully', response);
-        },
-        error => {
-          console.error('Error:', error.status, error.message, error.error);
-        }
-      );
-  
+        .subscribe(
+          (response: any) => {
+            const newTask = { id: response.id, title: taskTitle };
+            this.todo.push(newTask);
+            console.log('Task created successfully', response);
+          },
+          error => {
+            console.error('Error:', error.status, error.message, error.error);
+          }
+        );
+
       taskInput.value = '';
     }
   }
-  
+
 
   drop(event: CdkDragDrop<any[]>) {
     if (event.previousContainer === event.container) {

@@ -55,7 +55,10 @@ export class LoginComponent {
     try {
       const response = firstValueFrom(this.http.post('http://localhost:8000/api/login/', formData, options));
       console.log('Login successful', response);
-      this.router.navigateByUrl('board');
+      setTimeout(()=>{
+        this.router.navigateByUrl('board');
+      }, 1200);
+       
     } catch (error: any) {
       console.error('Login failed', error);
       this.errorMessage = error.error.error;

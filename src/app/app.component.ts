@@ -1,8 +1,10 @@
-import { Component } from '@angular/core';
+import { AfterViewInit, Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { LoginComponent } from './login/login.component';
 import { LandingpageComponent } from './kanban/landingpage/landingpage.component';
 import { RegisterComponent } from './register/register.component';
+
+
 
 @Component({
   selector: 'app-root',
@@ -13,4 +15,6 @@ import { RegisterComponent } from './register/register.component';
 })
 export class AppComponent {
   title = 'kanban_frontend_angular';
+
+
 }

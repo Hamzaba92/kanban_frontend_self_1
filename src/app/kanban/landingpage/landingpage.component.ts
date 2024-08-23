@@ -18,6 +18,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-landingpage',
@@ -34,6 +35,7 @@ export class LandingpageComponent implements OnInit {
 
   router = inject(Router);
 
+  userData: { first_name: string; last_name: string } | null = null;
 
   todo = [
     { id: null, title: 'Get to work' },
@@ -51,39 +53,54 @@ export class LandingpageComponent implements OnInit {
     { id: null, title: 'Walking' }
   ];
 
-  ngOnInit() {
-    //this.loadTasks();
+  getCookieValue(name: string): string | null {
+    const nameEQ = name + "=";
+    const ca = document.cookie.split(';');
+    for (let i = 0; i < ca.length; i++) {
+      let c = ca[i].trim();
+      if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+    }
+    return null;
   }
 
-  async loadTasks() {
+  ngOnInit() {
+    this.loadUserTasks();
+    this.fetchFirstnameAndLastname();
+  }
 
+  async loadUserTasks() {
+    
     interface Task {
       id: number | null;
       title: string;
       status: string;
     }
-  
 
-    const token = localStorage.getItem('csrftoken');
+    const token = this.getCookieValue('csrftoken');
     if (token) {
       this.http.get<Task[]>('http://localhost:8000/loadTasks/', {
-        headers: { 'X-CSRFToken': token }
+        headers: { 'X-CSRFToken': token },
+        withCredentials: true  // Stelle sicher, dass die Session-Cookies mitgesendet werden
       })
-      .subscribe(
-        (response: any) => {
-          console.log('Response:', response);
-          this.todo = response.filter((task: Task) => task.status === 'todo');
-          this.done = response.filter((task: Task) => task.status === 'done');
-          this.progress = response.filter((task: Task) => task.status === 'progress');
-        },
-        error => {
-          console.error('Error:', error.status, error.message, error.error);
-        }
-      );
+        .subscribe(
+          (response: any) => {
+            console.log('Response:', response);
+            if (response && Array.isArray(response)) {
+              this.todo = response.filter((task: Task) => task.status === 'todo');
+              this.done = response.filter((task: Task) => task.status === 'done');
+              this.progress = response.filter((task: Task) => task.status === 'progress');
+            } else {
+              console.error('Unexpected response format:', response);
+            }
+          },
+          error => {
+            console.error('Error:', error.status, error.message, error.error);
+          }
+        );
+    } else {
+      console.error('CSRF token is missing.');
     }
   }
-  
-
 
   logout() {
     this.router.navigateByUrl('login')
@@ -91,28 +108,34 @@ export class LandingpageComponent implements OnInit {
 
   addTask(taskInput: HTMLInputElement): void {
     const taskTitle = taskInput.value;
-    const token = localStorage.getItem('csrftoken');
-    if (taskTitle && token) {
+    const csrftoken = this.getCookieValue('csrftoken');
+
+    if (taskTitle && csrftoken) {
+      const headers = new HttpHeaders({
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrftoken,
+      });
+
       this.http.post('http://localhost:8000/tasks/',
         { title: taskTitle, status: 'todo' },
-        {
-          headers: { 'X-CSRFToken': token }
+        { headers: headers, withCredentials: true }
+      ).subscribe(
+        (response: any) => {
+          const newTask = { id: response.id, title: taskTitle };
+          this.todo.push(newTask);
+          console.log('Task created successfully', response);
+        },
+        (error: any) => {
+          console.error('Error:', error.status, error.message, error.error);
         }
-      )
-        .subscribe(
-          (response: any) => {
-            const newTask = { id: response.id, title: taskTitle };
-            this.todo.push(newTask);
-            console.log('Task created successfully', response);
-          },
-          error => {
-            console.error('Error:', error.status, error.message, error.error);
-          }
-        );
+      );
 
       taskInput.value = '';
+    } else {
+      console.error('CSRF token is missing or user is not authenticated.');
     }
   }
+
 
 
   drop(event: CdkDragDrop<any[]>) {
@@ -129,8 +152,6 @@ export class LandingpageComponent implements OnInit {
       );
 
       const newStatus = this.getStatus(event.container.element.nativeElement.id);
-
-
       const task = event.item.data;
 
       if (!task || !task.id) {
@@ -179,7 +200,22 @@ export class LandingpageComponent implements OnInit {
     }
   }
 
-
+  async fetchFirstnameAndLastname() {
+    const csrfToken = this.getCookieValue('csrftoken') ?? ''; 
+    const headers = new HttpHeaders({
+      'X-CSRFToken': csrfToken,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    });
+  
+    await this.http.get<{ first_name: string; last_name: string }>('http://localhost:8000/api/getusername/', { headers, withCredentials: true })
+      .subscribe(response => {
+        this.userData = response;
+      }, error => {
+        console.error('Error fetching firstname & lastname', error);
+      });
+  }
+  
 
 
 

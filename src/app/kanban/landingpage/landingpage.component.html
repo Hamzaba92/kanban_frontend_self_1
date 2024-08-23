@@ -1,28 +1,28 @@
-<!-- Always shows a header, even in smaller screens. -->
 <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
   <header class="mdl-layout__header">
     <div class="mdl-layout__header-row">
       <!-- Title -->
       <span class="mdl-layout-title">Kanban-board</span>
-      
+
       <div class="mdl-layout-spacer"></div>
     </div>
   </header>
   <div class="mdl-layout__drawer">
 
     <nav class="mdl-navigation">
-      <a class="mdl-navigation__link" href="" (click)="logout()">Logout<span class="material-symbols-outlined">logout</span></a>
+      <a class="mdl-navigation__link" href="" (click)="logout()">Logout<span
+          class="material-symbols-outlined">logout</span></a>
     </nav>
   </div>
   <main class="mdl-layout__content">
 
     <div class="user-greeting" *ngIf="userData">
-      <h1>Welcome, {{ userData.first_name }}  {{ userData.last_name }}</h1>  
+      <h3>Welcome, {{ userData.first_name }} {{ userData.last_name }}</h3>
     </div>
 
     <div class="page-content">
 
-      
+
       <div class="add-task">
         <mat-form-field class="example-full-width">
           <mat-label>Add Task</mat-label>
@@ -34,10 +34,11 @@
 
       <div class="drag-and-drop-content">
 
-        
+
         <div class="example-container">
           <h2>To do</h2>
-          <div id="todolist" cdkDropList #todolist="cdkDropList" [cdkDropListConnectedTo]="[donelist, progresslist]" [cdkDropListData]="todo" class="example-list" (cdkDropListDropped)="drop($event)">
+          <div id="todolist" cdkDropList #todolist="cdkDropList" [cdkDropListConnectedTo]="[donelist, progresslist]"
+            [cdkDropListData]="todo" class="example-list" (cdkDropListDropped)="drop($event)">
             <div class="example-box" *ngFor="let item of todo; let i = index" cdkDrag [cdkDragData]="item">
               {{item.title}}
               <button mat-icon-button color="warn" (click)="deleteTask(i, 'todo')">
@@ -46,10 +47,11 @@
             </div>
           </div>
         </div>
-        
+
         <div class="example-container">
           <h2>Progress</h2>
-          <div id="progresslist" cdkDropList #progresslist="cdkDropList" [cdkDropListConnectedTo]="[todolist, donelist]" [cdkDropListData]="progress" class="example-list" (cdkDropListDropped)="drop($event)">
+          <div id="progresslist" cdkDropList #progresslist="cdkDropList" [cdkDropListConnectedTo]="[todolist, donelist]"
+            [cdkDropListData]="progress" class="example-list" (cdkDropListDropped)="drop($event)">
             <div class="example-box" *ngFor="let item of progress; let i = index" cdkDrag [cdkDragData]="item">
               {{item.title}}
               <button mat-icon-button color="warn" (click)="deleteTask(i, 'progress')">
@@ -58,10 +60,11 @@
             </div>
           </div>
         </div>
-        
+
         <div class="example-container">
           <h2>Done</h2>
-          <div id="donelist" cdkDropList #donelist="cdkDropList" [cdkDropListConnectedTo]="[todolist, progresslist]" [cdkDropListData]="done" class="example-list" (cdkDropListDropped)="drop($event)">
+          <div id="donelist" cdkDropList #donelist="cdkDropList" [cdkDropListConnectedTo]="[todolist, progresslist]"
+            [cdkDropListData]="done" class="example-list" (cdkDropListDropped)="drop($event)">
             <div class="example-box" *ngFor="let item of done; let i = index" cdkDrag [cdkDragData]="item">
               {{item.title}}
               <button mat-icon-button color="warn" (click)="deleteTask(i, 'done')">
@@ -70,7 +73,7 @@
             </div>
           </div>
         </div>
-        
+
 
       </div>
 

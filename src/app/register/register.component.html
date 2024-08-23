@@ -11,10 +11,10 @@
 
     <div *ngIf="successMessage" class="success-banner">
         {{ successMessage }}
-      </div>
+    </div>
 
     <form (ngSubmit)="registerUser()" #registerForm="ngForm">
-        
+
         <div class="coloum-field">
             <mat-progress-bar style="margin-bottom: 16px;" mode="indeterminate" *ngIf="progressbar"></mat-progress-bar>
 
@@ -55,16 +55,16 @@
 
             <div *ngIf="formErrors.length > 0">
                 <div *ngFor="let error of formErrors">
-                  <div class="error-message" style="color: red;">
-                    <strong>{{ error.field }}:</strong> {{ error.message }}
-                  </div>
+                    <div class="error-message" style="color: red;">
+                        <strong>{{ error.field }}:</strong> {{ error.message }}
+                    </div>
                 </div>
-              </div>
-              
+            </div>
+
 
             <button mat-flat-button type="submit" [disabled]="!isFormValid()">Register</button>
         </div>
     </form>
 
-    
+
 </div>

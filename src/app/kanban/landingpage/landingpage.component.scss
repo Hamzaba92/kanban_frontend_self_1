@@ -17,7 +17,6 @@
 }
 
 
-
 .example-container {
     width: 400px;
     max-width: 100%;
@@ -75,10 +74,10 @@
   
 
   .add-task{
-    margin-left: 110px;
+    margin: 44px 0px 0px 72px;
     display: flex;
     align-items: center;
-    margin-top: 26px;
+   
 
     button{
       margin-left: 16px;
@@ -90,4 +89,12 @@
     display: flex;
     justify-content: space-evenly;
     margin-top: 46px;
+  }
+
+  .user-greeting{
+    color: #3F51B5;
+    margin: 44px 0px 0px 72px;
+    h3{
+      font-weight: 500;
+    }
   }

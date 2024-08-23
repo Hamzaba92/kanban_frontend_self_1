@@ -31,46 +31,45 @@ export class LoginComponent {
   login() {
     const csrftoken = this.getCookieValue('csrftoken');
     console.log('Cookie geholt', csrftoken);
-    
+
     if (!csrftoken) {
       console.error('CSRF token is undefined.');
       return;
     }
-  
+
     const formData = {
       username: this.username,
       password: this.password
     };
-  
+
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
-      'X-CSRFToken': csrftoken  
+      'X-CSRFToken': csrftoken
     });
-  
+
     const options = {
       headers: headers,
       withCredentials: true
     };
-  
+
     try {
       const response = firstValueFrom(this.http.post('http://localhost:8000/api/login/', formData, options));
       console.log('Login successful', response);
-      setTimeout(()=>{
+      setTimeout(() => {
         this.router.navigateByUrl('board');
       }, 1200);
-       
+
     } catch (error: any) {
       console.error('Login failed', error);
       this.errorMessage = error.error.error;
     }
   }
-  
 
   async getCsrfToken() {
     try {
       const response: any = await firstValueFrom(this.http.get('http://localhost:8000/api/csrf-token/', { withCredentials: true }));
       console.log('CSRF token erhalten:', response);
-  
+
       if (response && response.csrftoken) {
         document.cookie = `csrftoken=${response.csrftoken}; path=/`;
       }
@@ -78,18 +77,13 @@ export class LoginComponent {
       console.error('Failed to retrieve CSRF token', error);
     }
   }
-  
 
-  getCookieValue(name: string): string{
+  getCookieValue(name: string): string {
     return document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)')?.pop() || ''
   };
-  
-
 
   openRegisterForms() {
     this.router.navigateByUrl('register');
   }
-
-
 
 }

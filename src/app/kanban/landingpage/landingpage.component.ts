@@ -18,7 +18,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-landingpage',
@@ -80,7 +79,7 @@ export class LandingpageComponent implements OnInit {
     if (token) {
       this.http.get<Task[]>('http://localhost:8000/loadTasks/', {
         headers: { 'X-CSRFToken': token },
-        withCredentials: true  // Stelle sicher, dass die Session-Cookies mitgesendet werden
+        withCredentials: true  
       })
         .subscribe(
           (response: any) => {
@@ -135,8 +134,6 @@ export class LandingpageComponent implements OnInit {
       console.error('CSRF token is missing or user is not authenticated.');
     }
   }
-
-
 
   drop(event: CdkDragDrop<any[]>) {
     if (event.previousContainer === event.container) {
@@ -216,8 +213,6 @@ export class LandingpageComponent implements OnInit {
       });
   }
   
-
-
 
 }
 

@@ -16,6 +16,6 @@ export const authGuard: CanActivateFn = (route, state) => {
     }
   } else {
     console.log('Document is not defined, cannot check token');
-    return false; 
+    return false;
   }
 };

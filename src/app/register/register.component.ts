@@ -37,8 +37,8 @@ export class RegisterComponent implements OnInit {
     this.getCsrfToken();
   }
 
-  getCsrfToken() {
-    this.http.get('http://localhost:8000/api/csrf-token/').subscribe({
+  async getCsrfToken() {
+    await this.http.get('http://localhost:8000/api/csrf-token/').subscribe({
       next: (response: any) => {
         this.csrfToken = response.csrfToken;
         document.cookie = `csrftoken=${this.csrfToken}; path=/`;

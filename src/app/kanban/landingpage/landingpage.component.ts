@@ -19,6 +19,9 @@ import { Router } from '@angular/router';
 import { inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
+
+
+
 @Component({
   selector: 'app-landingpage',
   standalone: true,
@@ -28,9 +31,14 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
   styleUrl: './landingpage.component.scss'
 })
 
+
+
 export class LandingpageComponent implements OnInit {
 
+  
+
   constructor(private http: HttpClient) { }
+
 
   router = inject(Router);
 
@@ -83,7 +91,6 @@ export class LandingpageComponent implements OnInit {
       })
         .subscribe(
           (response: any) => {
-            console.log('Response:', response);
             if (response && Array.isArray(response)) {
               this.todo = response.filter((task: Task) => task.status === 'todo');
               this.done = response.filter((task: Task) => task.status === 'done');

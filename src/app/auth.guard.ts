@@ -1,11 +1,13 @@
 import { CanActivateFn } from '@angular/router';
 import { Router } from '@angular/router';
-import { inject } from '@angular/core';
+import { inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 
 export const authGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
+  const platformId = inject(PLATFORM_ID);
 
-  if (typeof document !== 'undefined') {
+  if (isPlatformBrowser(platformId)) {
     const cookieToken = document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1];
     if (cookieToken) {
       return true;
@@ -19,3 +21,4 @@ export const authGuard: CanActivateFn = (route, state) => {
     return false;
   }
 };
+

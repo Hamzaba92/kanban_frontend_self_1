@@ -30,7 +30,6 @@ export class LoginComponent {
 
   login() {
     const csrftoken = this.getCookieValue('csrftoken');
-    console.log('Cookie geholt', csrftoken);
 
     if (!csrftoken) {
       console.error('CSRF token is undefined.');
@@ -56,8 +55,10 @@ export class LoginComponent {
       const response = firstValueFrom(this.http.post('http://localhost:8000/api/login/', formData, options));
       console.log('Login successful', response);
       setTimeout(() => {
-        this.router.navigateByUrl('board');
-      }, 1200);
+        this.router.navigateByUrl('board').then(()=>{
+          window.location.reload();
+        })
+      }, 700);
 
     } catch (error: any) {
       console.error('Login failed', error);
@@ -68,8 +69,6 @@ export class LoginComponent {
   async getCsrfToken() {
     try {
       const response: any = await firstValueFrom(this.http.get('http://localhost:8000/api/csrf-token/', { withCredentials: true }));
-      console.log('CSRF token erhalten:', response);
-
       if (response && response.csrftoken) {
         document.cookie = `csrftoken=${response.csrftoken}; path=/`;
       }

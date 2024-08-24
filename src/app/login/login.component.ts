@@ -58,7 +58,7 @@ export class LoginComponent {
         this.router.navigateByUrl('board').then(()=>{
           window.location.reload();
         })
-      }, 700);
+      }, 1200);
 
     } catch (error: any) {
       console.error('Login failed', error);

@@ -18,6 +18,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 
 
 
@@ -31,14 +32,9 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
   styleUrl: './landingpage.component.scss'
 })
 
-
-
 export class LandingpageComponent implements OnInit {
 
-  
-
   constructor(private http: HttpClient) { }
-
 
   router = inject(Router);
 
@@ -212,13 +208,16 @@ export class LandingpageComponent implements OnInit {
       'Accept': 'application/json'
     });
   
-    await this.http.get<{ first_name: string; last_name: string }>('http://localhost:8000/api/getusername/', { headers, withCredentials: true })
-      .subscribe(response => {
-        this.userData = response;
-      }, error => {
-        console.error('Error fetching firstname & lastname', error);
-      });
+    try {
+      const response = await firstValueFrom(
+        this.http.get<{ first_name: string; last_name: string }>('http://localhost:8000/api/getusername/', { headers, withCredentials: true })
+      );
+      this.userData = response;
+    } catch (error) {
+      console.error('Error fetching firstname & lastname', error);
+    }
   }
+  
   
 
 }

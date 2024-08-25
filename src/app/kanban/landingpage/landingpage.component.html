@@ -3,11 +3,11 @@
     <div class="mdl-layout__header-row">
       <!-- Title -->
       <span class="mdl-layout-title">Kanban-board</span>
-      
+
       <div class="mdl-layout-spacer"></div>
     </div>
   </header>
-  
+
 
   <div class="mdl-layout__drawer">
     <nav class="mdl-navigation">
@@ -29,8 +29,20 @@
           <mat-label>Add Task</mat-label>
           <input #taskInput type="text" matInput placeholder="New Task">
         </mat-form-field>
-        <button mat-flat-button (click)="addTask(taskInput)">Add</button>
+
+        <!-- Dropdown für Benutzer -->
+        <mat-form-field class="example-full-width">
+          <mat-label>Assign to</mat-label>
+          <mat-select [(value)]="selectedUserId">
+            <mat-option *ngFor="let user of users" [value]="user.id">
+              {{ user.first_name }} {{ user.last_name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <button mat-flat-button (click)="addTask(taskInput, selectedUserId)">Add</button>
       </div>
+
 
 
       <div class="drag-and-drop-content">
@@ -40,41 +52,64 @@
           <h2>To do</h2>
           <div id="todolist" cdkDropList #todolist="cdkDropList" [cdkDropListConnectedTo]="[donelist, progresslist]"
             [cdkDropListData]="todo" class="example-list" (cdkDropListDropped)="drop($event)">
+
             <div class="example-box" *ngFor="let item of todo; let i = index" cdkDrag [cdkDragData]="item">
-              {{item.title}}
-              <button mat-icon-button color="warn" (click)="deleteTask(i, 'todo')">
-                <mat-icon>delete</mat-icon>
-              </button>
+              <div class="example-box-content">
+                {{item.title}}
+              </div>
+              <div class="example-box-right">
+                <small *ngIf="item.assigned_to">
+                  <b>Assigned to:</b><br> {{ item.assigned_to.first_name }} <br> {{ item.assigned_to.last_name }}
+                </small>
+                <button mat-icon-button color="warn" (click)="deleteTask(i, 'todo')">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
             </div>
           </div>
         </div>
+
 
         <div class="example-container">
           <h2>Progress</h2>
           <div id="progresslist" cdkDropList #progresslist="cdkDropList" [cdkDropListConnectedTo]="[todolist, donelist]"
             [cdkDropListData]="progress" class="example-list" (cdkDropListDropped)="drop($event)">
             <div class="example-box" *ngFor="let item of progress; let i = index" cdkDrag [cdkDragData]="item">
-              {{item.title}}
-              <button mat-icon-button color="warn" (click)="deleteTask(i, 'progress')">
-                <mat-icon>delete</mat-icon>
-              </button>
+              <div class="example-box-content">
+                {{item.title}}
+              </div>
+              <div class="example-box-right">
+                <small *ngIf="item.assigned_to">
+                  <b>Assigned to:</b><br> {{ item.assigned_to.first_name }} <br> {{ item.assigned_to.last_name }}
+                </small>
+                <button mat-icon-button color="warn" (click)="deleteTask(i, 'progress')">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
             </div>
           </div>
         </div>
+
 
         <div class="example-container">
           <h2>Done</h2>
           <div id="donelist" cdkDropList #donelist="cdkDropList" [cdkDropListConnectedTo]="[todolist, progresslist]"
             [cdkDropListData]="done" class="example-list" (cdkDropListDropped)="drop($event)">
             <div class="example-box" *ngFor="let item of done; let i = index" cdkDrag [cdkDragData]="item">
-              {{item.title}}
-              <button mat-icon-button color="warn" (click)="deleteTask(i, 'done')">
-                <mat-icon>delete</mat-icon>
-              </button>
+              <div class="example-box-content">
+                {{item.title}}
+              </div>
+              <div class="example-box-right">
+                <small *ngIf="item.assigned_to">
+                  <b>Assigned to:</b><br> {{ item.assigned_to.first_name }} <br> {{ item.assigned_to.last_name }}
+                </small>
+                <button mat-icon-button color="warn" (click)="deleteTask(i, 'done')">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
             </div>
           </div>
         </div>
-
 
       </div>
 

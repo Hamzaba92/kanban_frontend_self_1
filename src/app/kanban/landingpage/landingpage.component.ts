@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { CommonModule } from '@angular/common';
 import {
@@ -19,18 +19,32 @@ import { Router } from '@angular/router';
 import { inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
+import { MatSelectModule } from '@angular/material/select';
+import { MatOptionModule } from '@angular/material/core';
 
 
-
+interface Task {
+  id?: number | null;
+  title: string;
+  status?: string;
+  assigned_to?: {
+    id: number;
+    first_name: string;
+    last_name: string;
+  } | null;
+}
 
 @Component({
   selector: 'app-landingpage',
   standalone: true,
   imports: [MatCardModule, CdkDropListGroup, CdkDropList, CdkDrag, MatInputModule,
-    MatFormFieldModule, FormsModule, MatButtonModule, MatIconModule, CommonModule],
+    MatFormFieldModule, FormsModule, MatButtonModule, MatIconModule, CommonModule, MatSelectModule, MatOptionModule],
   templateUrl: './landingpage.component.html',
   styleUrl: './landingpage.component.scss'
 })
+
+
+
 
 export class LandingpageComponent implements OnInit {
 
@@ -40,20 +54,24 @@ export class LandingpageComponent implements OnInit {
 
   userData: { first_name: string; last_name: string } | null = null;
 
-  todo = [
-    { id: null, title: 'Get to work' },
-    { id: null, title: 'Pick up groceries' },
+  users: any[] = []; 
+  selectedUserId: number | null = null;  
+
+
+  todo: Task[] = [
+    { id: null, title: 'Get to work', assigned_to: null },
+    { id: null, title: 'Pick up groceries', assigned_to: null },
   ];
 
-  done = [
-    { id: null, title: 'Brush teeth' },
-    { id: null, title: 'Take a shower' },
-    { id: null, title: 'Check e-mail' },
+  done: Task[] = [
+    { id: null, title: 'Brush teeth', assigned_to: null },
+    { id: null, title: 'Take a shower', assigned_to: null },
+    { id: null, title: 'Check e-mail', assigned_to: null }
   ];
 
-  progress = [
-    { id: null, title: 'read a book' },
-    { id: null, title: 'Walking' }
+  progress: Task[] = [
+    { id: null, title: 'read a book', assigned_to: null },
+    { id: null, title: 'Walking', assigned_to: null }
   ];
 
   getCookieValue(name: string): string | null {
@@ -69,28 +87,23 @@ export class LandingpageComponent implements OnInit {
   ngOnInit() {
     this.loadUserTasks();
     this.fetchFirstnameAndLastname();
+    this.loadUsers();
   }
 
   async loadUserTasks() {
-    
-    interface Task {
-      id: number | null;
-      title: string;
-      status: string;
-    }
-
     const token = this.getCookieValue('csrftoken');
     if (token) {
-      this.http.get<Task[]>('http://localhost:8000/loadTasks/', {
+      this.http.get<any[]>('http://localhost:8000/loadTasks/', {
         headers: { 'X-CSRFToken': token },
-        withCredentials: true  
+        withCredentials: true
       })
         .subscribe(
-          (response: any) => {
+          (response: any[]) => {
             if (response && Array.isArray(response)) {
-              this.todo = response.filter((task: Task) => task.status === 'todo');
-              this.done = response.filter((task: Task) => task.status === 'done');
-              this.progress = response.filter((task: Task) => task.status === 'progress');
+              this.todo = response.filter((task: any) => task.status === 'todo');
+              this.done = response.filter((task: any) => task.status === 'done');
+              this.progress = response.filter((task: any) => task.status === 'progress');
+
             } else {
               console.error('Unexpected response format:', response);
             }
@@ -104,11 +117,41 @@ export class LandingpageComponent implements OnInit {
     }
   }
 
-  logout() {
-    this.router.navigateByUrl('login')
+  loadUsers() {
+    const token = this.getCookieValue('csrftoken');
+    if (token) {
+      this.http.get<any[]>('http://localhost:8000/api/users/', {
+        headers: { 'X-CSRFToken': token },
+        withCredentials: true
+      })
+        .subscribe(
+          (response: any[]) => {
+            this.users = response; 
+          },
+          error => {
+            console.error('Error loading users:', error.status, error.message, error.error);
+          }
+        );
+    } else {
+      console.error('CSRF token is missing.');
+    }
   }
 
-  addTask(taskInput: HTMLInputElement): void {
+  logout() {
+    this.http.post('http://localhost:8000/api/logout/', {}, { withCredentials: true })
+      .subscribe(
+        response => {
+          document.cookie = 'csrftoken=; Max-Age=0; path=/; domain=yourdomain.com;';
+          console.log('scheint auszuloggen', response)
+        },
+        error => {
+          console.error('Logout error', error);
+        }
+      );
+  }
+  
+
+  addTask(taskInput: HTMLInputElement, assignedUserId: number | null): void {
     const taskTitle = taskInput.value;
     const csrftoken = this.getCookieValue('csrftoken');
 
@@ -118,21 +161,35 @@ export class LandingpageComponent implements OnInit {
         'X-CSRFToken': csrftoken,
       });
 
-      this.http.post('http://localhost:8000/tasks/',
-        { title: taskTitle, status: 'todo' },
-        { headers: headers, withCredentials: true }
-      ).subscribe(
-        (response: any) => {
-          const newTask = { id: response.id, title: taskTitle };
-          this.todo.push(newTask);
-          console.log('Task created successfully', response);
-        },
-        (error: any) => {
-          console.error('Error:', error.status, error.message, error.error);
-        }
-      );
+      const taskData = {
+        title: taskTitle,
+        status: 'todo',
+        assigned_to: assignedUserId,
+      };
+
+      this.http.post<{ id: number }>('http://localhost:8000/tasks/', taskData, { headers: headers, withCredentials: true })
+        .subscribe(
+          (response: {id: number}) => {
+
+            const assignedUser = this.users.find(user => user.id === assignedUserId);
+
+            const newTask: Task = {
+              id: response.id,
+              title: taskTitle,
+              status: 'todo',
+              assigned_to: assignedUser 
+            };
+
+            this.todo.push(newTask);
+            console.log('Task created successfully', response);
+          },
+          (error: any) => {
+            console.error('Error:', error.status, error.message, error.error);
+          }
+        );
 
       taskInput.value = '';
+      this.selectedUserId = null; 
     } else {
       console.error('CSRF token is missing or user is not authenticated.');
     }

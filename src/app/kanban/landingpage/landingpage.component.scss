@@ -46,8 +46,28 @@
     cursor: move;
     background: white;
     font-size: 14px;
+    flex-wrap: nowrap;
   }
-  
+
+  .example-box-content {
+    flex-grow: 1;
+    white-space: normal;
+    word-wrap: break-word; 
+    margin-right: 10px; 
+    min-width: 0;
+    font-weight: 500;
+    font-size: large;
+  }
+
+  .example-box-right {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    flex-shrink: 0; 
+  }
+
+
   .cdk-drag-preview {
     box-sizing: border-box;
     border-radius: 4px;
@@ -72,12 +92,11 @@
     transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
   }
   
-
   .add-task{
     margin: 44px 0px 0px 72px;
     display: flex;
     align-items: center;
-   
+    column-gap: 18px;
 
     button{
       margin-left: 16px;

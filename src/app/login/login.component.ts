@@ -24,11 +24,12 @@ export class LoginComponent {
   constructor(private http: HttpClient, public router: Router) { }
 
 
-  async ngOnInit() {
-    await this.getCsrfToken();
+  ngOnInit() {
+    this.getCsrfToken();
   }
 
-  login() {
+  async login() {
+    await this.getCsrfToken();
     const csrftoken = this.getCookieValue('csrftoken');
 
     if (!csrftoken) {
@@ -69,14 +70,17 @@ export class LoginComponent {
   async getCsrfToken() {
     try {
       const response: any = await firstValueFrom(this.http.get('http://localhost:8000/api/csrf-token/', { withCredentials: true }));
-      if (response && response.csrftoken) {
-        document.cookie = `csrftoken=${response.csrftoken}; path=/`;
+      //console.log('CSRF Token Response:', response);
+      if (response && response.csrfToken) {
+        document.cookie = `csrftoken=${response.csrfToken}; path=/`;
+      } else {
+        console.error('CSRF Token nicht im Response gefunden.');
       }
     } catch (error) {
-      console.error('Failed to retrieve CSRF token', error);
+      //console.error('Failed to retrieve CSRF token', error);
     }
   }
-
+  
   getCookieValue(name: string): string {
     return document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)')?.pop() || ''
   };

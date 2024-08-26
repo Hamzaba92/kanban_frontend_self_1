@@ -21,7 +21,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
-
+import { MatMenuModule } from '@angular/material/menu';
 
 interface Task {
   id?: number | null;
@@ -38,12 +38,10 @@ interface Task {
   selector: 'app-landingpage',
   standalone: true,
   imports: [MatCardModule, CdkDropListGroup, CdkDropList, CdkDrag, MatInputModule,
-    MatFormFieldModule, FormsModule, MatButtonModule, MatIconModule, CommonModule, MatSelectModule, MatOptionModule],
+    MatFormFieldModule, FormsModule, MatButtonModule, MatIconModule, CommonModule, MatSelectModule, MatOptionModule, MatMenuModule],
   templateUrl: './landingpage.component.html',
   styleUrl: './landingpage.component.scss'
 })
-
-
 
 
 export class LandingpageComponent implements OnInit {
@@ -54,8 +52,8 @@ export class LandingpageComponent implements OnInit {
 
   userData: { first_name: string; last_name: string } | null = null;
 
-  users: any[] = []; 
-  selectedUserId: number | null = null;  
+  users: any[] = [];
+  selectedUserId: number | null = null;
 
 
   todo: Task[] = [
@@ -85,15 +83,11 @@ export class LandingpageComponent implements OnInit {
   }
 
   ngOnInit() {
-    const isLoggedIn = this.getCookieValue('csrftoken') !== null;
+    this.getCookieValue('csrftoken');
+    this.loadUserTasks();
+    this.fetchFirstnameAndLastname();
+    this.loadUsers();
 
-    if (isLoggedIn) {
-      this.loadUserTasks();
-      this.fetchFirstnameAndLastname();
-      this.loadUsers();
-    } else {
-      console.error('User is not logged in. Skipping initialization.');
-    }
   }
 
   async loadUserTasks() {
@@ -132,7 +126,7 @@ export class LandingpageComponent implements OnInit {
       })
         .subscribe(
           (response: any[]) => {
-            this.users = response; 
+            this.users = response;
           },
           error => {
             console.error('Error loading users:', error.status, error.message, error.error);
@@ -150,19 +144,13 @@ export class LandingpageComponent implements OnInit {
       document.cookie = 'csrftoken=; Max-Age=0; path=/;';
       document.cookie = 'csrftoken=; Max-Age=0;';
     };
-  
+
     deleteCookie();
-    
+
     this.router.navigateByUrl('login').then(() => {
       window.location.reload();
     });
   }
-  
-  
-  
-  
-  
-  
 
   addTask(taskInput: HTMLInputElement, assignedUserId: number | null): void {
     const taskTitle = taskInput.value;
@@ -182,7 +170,7 @@ export class LandingpageComponent implements OnInit {
 
       this.http.post<{ id: number }>('http://localhost:8000/tasks/', taskData, { headers: headers, withCredentials: true })
         .subscribe(
-          (response: {id: number}) => {
+          (response: { id: number }) => {
 
             const assignedUser = this.users.find(user => user.id === assignedUserId);
 
@@ -190,7 +178,7 @@ export class LandingpageComponent implements OnInit {
               id: response.id,
               title: taskTitle,
               status: 'todo',
-              assigned_to: assignedUser 
+              assigned_to: assignedUser
             };
 
             this.todo.push(newTask);
@@ -202,7 +190,7 @@ export class LandingpageComponent implements OnInit {
         );
 
       taskInput.value = '';
-      this.selectedUserId = null; 
+      this.selectedUserId = null;
     } else {
       console.error('CSRF token is missing or user is not authenticated.');
     }
@@ -271,13 +259,13 @@ export class LandingpageComponent implements OnInit {
   }
 
   async fetchFirstnameAndLastname() {
-    const csrfToken = this.getCookieValue('csrftoken') ?? ''; 
+    const csrfToken = this.getCookieValue('csrftoken') ?? '';
     const headers = new HttpHeaders({
       'X-CSRFToken': csrfToken,
       'Content-Type': 'application/json',
       'Accept': 'application/json'
     });
-  
+
     try {
       const response = await firstValueFrom(
         this.http.get<{ first_name: string; last_name: string }>('http://localhost:8000/api/getusername/', { headers, withCredentials: true })
@@ -287,8 +275,36 @@ export class LandingpageComponent implements OnInit {
       console.error('Error fetching firstname & lastname', error);
     }
   }
-  
-  
+
+  changeAssignedUser(task: Task, userId: number) {
+    const csrftoken = this.getCookieValue('csrftoken');
+
+    if (csrftoken) {
+      const headers = new HttpHeaders({
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrftoken,
+      });
+
+      const updatedTask = {
+        assigned_to: userId,
+      };
+
+      this.http.put(`http://localhost:8000/tasks/${task.id}/`, updatedTask, { headers: headers, withCredentials: true })
+        .subscribe(
+          response => {
+            const assignedUser = this.users.find(user => user.id === userId);
+            task.assigned_to = assignedUser;
+          },
+          error => {
+            console.error('Error updating assigned user', error);
+          }
+        );
+    } else {
+      console.error('CSRF token is missing.');
+    }
+  }
+
+
 
 }
 

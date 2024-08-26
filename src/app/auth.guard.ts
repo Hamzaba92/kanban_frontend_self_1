@@ -11,7 +11,6 @@ export const authGuard: CanActivateFn = (route, state) => {
     const cookieToken = document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1];
 
     if (cookieToken) {
-      // Wenn der Token vorhanden ist, Zugriff erlauben
       return true;
     } else {
       console.log('Kein Token, Umleitung zur Login-Seite');

@@ -50,17 +50,30 @@
 
         <div class="example-container">
           <h2>To do</h2>
-          <div id="todolist" cdkDropList #todolist="cdkDropList" [cdkDropListConnectedTo]="[donelist, progresslist]"
+          <div id="todolist" cdkDropList #todolist="cdkDropList" [cdkDropListConnectedTo]="[progresslist, donelist]"
             [cdkDropListData]="todo" class="example-list" (cdkDropListDropped)="drop($event)">
-
             <div class="example-box" *ngFor="let item of todo; let i = index" cdkDrag [cdkDragData]="item">
               <div class="example-box-content">
                 {{item.title}}
               </div>
               <div class="example-box-right">
                 <small *ngIf="item.assigned_to">
-                  <b>Assigned to:</b><br> {{ item.assigned_to.first_name }} <br> {{ item.assigned_to.last_name }}
+                  <b>Assigned to:</b><br>
+                  {{ item.assigned_to.first_name }} <br>
+                  {{ item.assigned_to.last_name }}
                 </small>
+                <mat-menu #menu="matMenu">
+                  <mat-form-field appearance="fill">
+                    <mat-select [value]="item.assigned_to?.id" (selectionChange)="changeAssignedUser(item, $event.value)">
+                      <mat-option *ngFor="let user of users" [value]="user.id">
+                        {{ user.first_name }} {{ user.last_name }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </mat-menu>
+                <button mat-icon-button [matMenuTriggerFor]="menu">
+                  <mat-icon>more_vert</mat-icon>
+                </button>
                 <button mat-icon-button color="warn" (click)="deleteTask(i, 'todo')">
                   <mat-icon>delete</mat-icon>
                 </button>
@@ -68,8 +81,7 @@
             </div>
           </div>
         </div>
-
-
+        
         <div class="example-container">
           <h2>Progress</h2>
           <div id="progresslist" cdkDropList #progresslist="cdkDropList" [cdkDropListConnectedTo]="[todolist, donelist]"
@@ -80,8 +92,22 @@
               </div>
               <div class="example-box-right">
                 <small *ngIf="item.assigned_to">
-                  <b>Assigned to:</b><br> {{ item.assigned_to.first_name }} <br> {{ item.assigned_to.last_name }}
+                  <b>Assigned to:</b><br>
+                  {{ item.assigned_to.first_name }} <br>
+                  {{ item.assigned_to.last_name }}
                 </small>
+                <mat-menu #menu="matMenu">
+                  <mat-form-field appearance="fill">
+                    <mat-select [value]="item.assigned_to?.id" (selectionChange)="changeAssignedUser(item, $event.value)">
+                      <mat-option *ngFor="let user of users" [value]="user.id">
+                        {{ user.first_name }} {{ user.last_name }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </mat-menu>
+                <button mat-icon-button [matMenuTriggerFor]="menu">
+                  <mat-icon>more_vert</mat-icon>
+                </button>
                 <button mat-icon-button color="warn" (click)="deleteTask(i, 'progress')">
                   <mat-icon>delete</mat-icon>
                 </button>
@@ -89,8 +115,7 @@
             </div>
           </div>
         </div>
-
-
+        
         <div class="example-container">
           <h2>Done</h2>
           <div id="donelist" cdkDropList #donelist="cdkDropList" [cdkDropListConnectedTo]="[todolist, progresslist]"
@@ -101,8 +126,22 @@
               </div>
               <div class="example-box-right">
                 <small *ngIf="item.assigned_to">
-                  <b>Assigned to:</b><br> {{ item.assigned_to.first_name }} <br> {{ item.assigned_to.last_name }}
+                  <b>Assigned to:</b><br>
+                  {{ item.assigned_to.first_name }} <br>
+                  {{ item.assigned_to.last_name }}
                 </small>
+                <mat-menu #menu="matMenu">
+                  <mat-form-field appearance="fill">
+                    <mat-select [value]="item.assigned_to?.id" (selectionChange)="changeAssignedUser(item, $event.value)">
+                      <mat-option *ngFor="let user of users" [value]="user.id">
+                        {{ user.first_name }} {{ user.last_name }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </mat-menu>
+                <button mat-icon-button [matMenuTriggerFor]="menu">
+                  <mat-icon>more_vert</mat-icon>
+                </button>
                 <button mat-icon-button color="warn" (click)="deleteTask(i, 'done')">
                   <mat-icon>delete</mat-icon>
                 </button>
@@ -110,7 +149,7 @@
             </div>
           </div>
         </div>
-
+        
       </div>
 
     </div>

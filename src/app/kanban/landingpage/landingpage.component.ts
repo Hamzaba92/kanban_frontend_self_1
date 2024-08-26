@@ -85,9 +85,15 @@ export class LandingpageComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.loadUserTasks();
-    this.fetchFirstnameAndLastname();
-    this.loadUsers();
+    const isLoggedIn = this.getCookieValue('csrftoken') !== null;
+
+    if (isLoggedIn) {
+      this.loadUserTasks();
+      this.fetchFirstnameAndLastname();
+      this.loadUsers();
+    } else {
+      console.error('User is not logged in. Skipping initialization.');
+    }
   }
 
   async loadUserTasks() {
@@ -138,17 +144,24 @@ export class LandingpageComponent implements OnInit {
   }
 
   logout() {
-    this.http.post('http://localhost:8000/api/logout/', {}, { withCredentials: true })
-      .subscribe(
-        response => {
-          document.cookie = 'csrftoken=; Max-Age=0; path=/; domain=yourdomain.com;';
-          console.log('scheint auszuloggen', response)
-        },
-        error => {
-          console.error('Logout error', error);
-        }
-      );
+    const deleteCookie = () => {
+      document.cookie = 'csrftoken=; Max-Age=0; path=/; domain=localhost;';
+      document.cookie = 'csrftoken=; Max-Age=0; path=/; domain=;';
+      document.cookie = 'csrftoken=; Max-Age=0; path=/;';
+      document.cookie = 'csrftoken=; Max-Age=0;';
+    };
+  
+    deleteCookie();
+    
+    this.router.navigateByUrl('login').then(() => {
+      window.location.reload();
+    });
   }
+  
+  
+  
+  
+  
   
 
   addTask(taskInput: HTMLInputElement, assignedUserId: number | null): void {

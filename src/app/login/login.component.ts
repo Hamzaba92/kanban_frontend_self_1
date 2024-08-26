@@ -24,60 +24,62 @@ export class LoginComponent {
   constructor(private http: HttpClient, public router: Router) { }
 
 
-  ngOnInit() {
-    this.getCsrfToken();
-  }
-
   async login() {
     await this.getCsrfToken();
     const csrftoken = this.getCookieValue('csrftoken');
-
+  
     if (!csrftoken) {
       console.error('CSRF token is undefined.');
       return;
     }
-
+  
     const formData = {
       username: this.username,
       password: this.password
     };
-
+  
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
       'X-CSRFToken': csrftoken
     });
-
+  
     const options = {
       headers: headers,
       withCredentials: true
     };
-
+  
     try {
-      const response = firstValueFrom(this.http.post('http://localhost:8000/api/login/', formData, options));
-      console.log('Login successful', response);
-      setTimeout(() => {
-        this.router.navigateByUrl('board').then(()=>{
-          window.location.reload();
-        })
-      }, 1200);
-
+      const response: any = await firstValueFrom(this.http.post('http://localhost:8000/api/login/', formData, options));
+  
+      if (response && response.message === 'Login successful') {
+        console.log('Login successful', response);
+  
+        setTimeout(() => {
+          this.router.navigateByUrl('board').then(() => {
+            window.location.reload();
+          });
+        }, 1200);
+      } else {
+        throw new Error('Login failed'); 
+      }
+  
     } catch (error: any) {
       console.error('Login failed', error);
-      this.errorMessage = error.error.error;
+      this.errorMessage = error.error ? error.error.error : 'An unexpected error occurred.';
     }
   }
 
   async getCsrfToken() {
     try {
       const response: any = await firstValueFrom(this.http.get('http://localhost:8000/api/csrf-token/', { withCredentials: true }));
-      //console.log('CSRF Token Response:', response);
+      console.log('CSRF Token Response:', response);
       if (response && response.csrfToken) {
         document.cookie = `csrftoken=${response.csrfToken}; path=/`;
       } else {
         console.error('CSRF Token nicht im Response gefunden.');
       }
     } catch (error) {
-      //console.error('Failed to retrieve CSRF token', error);
+      console.error('Failed to retrieve CSRF token', error);
     }
   }
   
